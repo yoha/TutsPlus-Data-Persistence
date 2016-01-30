@@ -19,10 +19,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         print(NSHomeDirectory())
         
-        let documentDirectory = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+        let userDefaults = NSUserDefaults.standardUserDefaults()
         
-        if let validDocumentDirectory = documentDirectory.first {
-            print(validDocumentDirectory)
+        userDefaults.setBool(true, forKey: "key1")
+        userDefaults.setInteger(123, forKey: "key2")
+        userDefaults.setObject("hello world", forKey: "key3")
+        userDefaults.setObject([5, 4, 3, 2, 1], forKey: "key4")
+        
+        userDefaults.boolForKey("key1")
+        userDefaults.integerForKey("key2")
+        userDefaults.objectForKey("key3")
+        userDefaults.objectForKey("key4")
+        
+        userDefaults.synchronize()
+       
+        let documentDirectory = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.UserDomainMask, true)
+        if let validDocumentDirectory = documentDirectory.first, let validDocumentDirectoryUrl = NSURL(string: validDocumentDirectory) {
+
+            let fruitsUrl = validDocumentDirectoryUrl.URLByAppendingPathComponent("fruits.plist")
+            let dictionaryUrl = validDocumentDirectoryUrl.URLByAppendingPathComponent("dictionary.plist")
+            
+            let fruits = ["Apple", "Mango", "Pineapple"] as NSArray
+            let dictionary = ["anArray": fruits, "aNumber": 43210, "aBoolean": true] as NSDictionary
+            
+            guard let validFruitsUrl = fruitsUrl.path, let validDictionaryUrl = dictionaryUrl.path else { return true }
+            fruits.writeToFile(validFruitsUrl, atomically: true)
+            dictionary.writeToFile(validDictionaryUrl, atomically: true)
+            
+            guard let validLoadedFruits = NSArray(contentsOfURL: fruitsUrl) else { return true }
+            print(validLoadedFruits)
+            
+            if let validLoadedDictionaries = NSArray(contentsOfURL: dictionaryUrl) {
+                print(validLoadedDictionaries)
+            }
         }
         
         return true
